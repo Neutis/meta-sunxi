@@ -1,4 +1,4 @@
-inherit image_types
+inherit image_types allwinner-overlays
 
 #
 # Create an image that can by written onto a SD card using dd.
@@ -66,25 +66,7 @@ IMAGE_CMD_sunxi-sdimg () {
 
 	mcopy -i ${WORKDIR}/boot.img -s ${DEPLOY_DIR_IMAGE}/${KERNEL_IMAGETYPE}-${MACHINE}.bin ::${KERNEL_IMAGETYPE}
 
-	# Copy device tree file
-	if test -n "${KERNEL_DEVICETREE}"; then
-		for DTS_FILE in ${KERNEL_DEVICETREE}; do
-			DTS_BASE_NAME=`basename ${DTS_FILE} | awk -F "." '{print $1}'`
-			DTS_DIR_NAME=`dirname ${DTS_FILE}`
-			if [ -e ${DEPLOY_DIR_IMAGE}/"${KERNEL_IMAGETYPE}-${DTS_BASE_NAME}.dtb" ]; then
-
-				if [ ${DTS_FILE} != ${DTS_BASE_NAME}.dtb ]; then
-					mmd -i ${WORKDIR}/boot.img ::/${DTS_DIR_NAME}
-				fi
-
-				kernel_bin="`readlink ${DEPLOY_DIR_IMAGE}/${KERNEL_IMAGETYPE}-${MACHINE}.bin`"
-				kernel_bin_for_dtb="`readlink ${DEPLOY_DIR_IMAGE}/${KERNEL_IMAGETYPE}-${DTS_BASE_NAME}.dtb | sed "s,$DTS_BASE_NAME,${MACHINE},g;s,\.dtb$,.bin,g"`"
-				if [ $kernel_bin = $kernel_bin_for_dtb ]; then
-					mcopy -i ${WORKDIR}/boot.img -s ${DEPLOY_DIR_IMAGE}/${KERNEL_IMAGETYPE}-${DTS_BASE_NAME}.dtb ::/${DTS_FILE}
-				fi
-			fi
-		done
-	fi
+	deploy_allwinner_device_tree_blobs
 
 	if [ -e "${DEPLOY_DIR_IMAGE}/fex.bin" ]
 	then
@@ -94,7 +76,6 @@ IMAGE_CMD_sunxi-sdimg () {
 	then
 		mcopy -i ${WORKDIR}/boot.img -s ${DEPLOY_DIR_IMAGE}/boot.scr ::boot.scr
 	fi
-
 
 	# Add stamp file
 	echo "${IMAGE_NAME}" > ${WORKDIR}/image-version-info
