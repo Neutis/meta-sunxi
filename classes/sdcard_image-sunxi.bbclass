@@ -68,6 +68,11 @@ IMAGE_CMD_sunxi-sdimg () {
 
 	deploy_allwinner_device_tree_blobs
 
+	if [ ${SOC_FAMILY} = "sun50i" ] && [ -d "${DEPLOY_DIR_IMAGE}/${MANUFACTURER}" ]
+	then
+		mcopy -i ${WORKDIR}/boot.img -s ${DEPLOY_DIR_IMAGE}/${MANUFACTURER} ::
+	fi
+
 	if [ -e "${DEPLOY_DIR_IMAGE}/fex.bin" ]
 	then
 		mcopy -i ${WORKDIR}/boot.img -s ${DEPLOY_DIR_IMAGE}/fex.bin ::script.bin
@@ -75,6 +80,11 @@ IMAGE_CMD_sunxi-sdimg () {
 	if [ -e "${DEPLOY_DIR_IMAGE}/boot.scr" ]
 	then
 		mcopy -i ${WORKDIR}/boot.img -s ${DEPLOY_DIR_IMAGE}/boot.scr ::boot.scr
+	fi
+
+	if [ -e "${DEPLOY_DIR_IMAGE}/Env.txt" ]
+	then
+		mcopy -i ${WORKDIR}/boot.img -s ${DEPLOY_DIR_IMAGE}/Env.txt ::Env.txt
 	fi
 
 	# Add stamp file
