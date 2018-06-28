@@ -73,10 +73,16 @@ IMAGE_CMD_sunxi-sdimg () {
 		mcopy -i ${WORKDIR}/boot.img -s ${DEPLOY_DIR_IMAGE}/${MANUFACTURER} ::
 	fi
 
+	if [ -e "${DEPLOY_DIR_IMAGE}/uInitrd" ]
+	then
+		mcopy -i ${WORKDIR}/boot.img -s ${DEPLOY_DIR_IMAGE}/uInitrd ::uInitrd
+	fi
+
 	if [ -e "${DEPLOY_DIR_IMAGE}/fex.bin" ]
 	then
 		mcopy -i ${WORKDIR}/boot.img -s ${DEPLOY_DIR_IMAGE}/fex.bin ::script.bin
 	fi
+
 	if [ -e "${DEPLOY_DIR_IMAGE}/boot.scr" ]
 	then
 		mcopy -i ${WORKDIR}/boot.img -s ${DEPLOY_DIR_IMAGE}/boot.scr ::boot.scr
