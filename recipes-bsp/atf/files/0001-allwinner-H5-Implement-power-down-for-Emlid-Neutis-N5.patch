@@ -1,0 +1,61 @@
+From c34a651971c5efcf8f533d8547760761a51ddb0e Mon Sep 17 00:00:00 2001
+From: Aleksandr Aleksandrov <aleksandr.aleksandrov@emlid.com>
+Date: Tue, 23 Oct 2018 12:14:42 +0300
+Subject: [PATCH] allwinner: H5: Implement power down for Emlid Neutis N5
+
+Signed-off-by: Aleksandr Aleksandrov <aleksandr.aleksandrov@emlid.com>
+Signed-off-by: Georgii Staroselskii <georgii.staroselskii@emlid.com>
+---
+ plat/allwinner/sun50i_a64/sunxi_power.c | 22 ++++++++++++++++++++--
+ 1 file changed, 20 insertions(+), 2 deletions(-)
+
+diff --git a/plat/allwinner/sun50i_a64/sunxi_power.c b/plat/allwinner/sun50i_a64/sunxi_power.c
+index af30477..02a8a77 100644
+--- a/plat/allwinner/sun50i_a64/sunxi_power.c
++++ b/plat/allwinner/sun50i_a64/sunxi_power.c
+@@ -21,6 +21,7 @@ static enum pmic_type {
+ 	GENERIC_H5,
+ 	GENERIC_A64,
+ 	REF_DESIGN_H5,	/* regulators controlled by GPIO pins on port L */
++	EMLID_NEUTIS_N5_DESIGN, /* regulators controlled by GPIO pins */
+ 	AXP803_RSB,	/* PMIC connected via RSB on most A64 boards */
+ } pmic;
+ 
+@@ -274,8 +275,12 @@ int sunxi_pmic_setup(uint16_t socid, const void *fdt)
+ 
+ 	switch (socid) {
+ 	case SUNXI_SOC_H5:
+-		pmic = REF_DESIGN_H5;
+-		NOTICE("BL31: PMIC: Defaulting to PortL GPIO according to H5 reference design.\n");
++		/* pmic = REF_DESIGN_H5;
++		NOTICE("BL31: PMIC: Defaulting to PortL GPIO according to H5 reference design.\n"); */
++
++		/* Neutis N5 has different pins to control power sources */
++		pmic = EMLID_NEUTIS_N5_DESIGN;
++		NOTICE("BL31: PMIC: Defaulting to GPIO according to Emlid Neutis N5 design.\n");
+ 		break;
+ 	case SUNXI_SOC_A64:
+ 		pmic = GENERIC_A64;
+@@ -335,6 +340,19 @@ void __dead2 sunxi_power_down(void)
+ 		mmio_write_32(SUNXI_CCU_BASE + 0x68, 0);
+ 
+ 		break;
++	case EMLID_NEUTIS_N5_DESIGN:
++		sunxi_turn_off_soc(SUNXI_SOC_H5);
++
++		/*
++		 * Switch board to low-power mode, power off as much as possible:
++		 * - PD11 (PWR-DRAM) -> low
++		 */
++		sunxi_set_gpio_out('D', 11, 0);
++
++		/* Turn off pin controller now. */
++		mmio_write_32(SUNXI_CCU_BASE + 0x68, 0);
++
++		break;
+ 	case AXP803_RSB:
+ 		/* (Re-)init RSB in case the rich OS has disabled it. */
+ 		sunxi_init_platform_r_twi(SUNXI_SOC_A64, true);
+-- 
+2.7.4
+
