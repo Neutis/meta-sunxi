@@ -3,7 +3,7 @@ LICENSE = "BSD"
 LIC_FILES_CHKSUM = "file://license.rst;md5=e927e02bca647e14efd87e9e914b2443"
 FILESEXTRAPATHS_prepend := "${THISDIR}/files/:"
 
-SRC_URI = "git://github.com/Andre-ARM/arm-trusted-firmware;branch=allwinner/pmic-v2 \
+SRC_URI = "git://github.com/ARM-software/arm-trusted-firmware;branch=master \
            file://0001-allwinner-H5-Implement-power-down-for-Emlid-Neutis-N5.patch \
            "
 SRCREV = "7db0c96023281d8a530f5e011a232e5d56557437"
