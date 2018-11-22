@@ -28,3 +28,5 @@ do_compile() {
 do_install() {
     install -D -p -m 0644 ${B}/${PLATFORM}/debug/bl31.bin ${DEPLOY_DIR_IMAGE}/bl31.bin
 }
+
+do_install[nostamp] = "1"
